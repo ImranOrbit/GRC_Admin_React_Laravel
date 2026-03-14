@@ -1,0 +1,20 @@
+/* CSS for smooth transition of submenu items */
+.ant-menu-submenu {
+  transition: height 0.3s ease-in-out;
+}
+
+.ant-menu-submenu-inline .ant-menu-submenu-title {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.ant-menu-submenu-open .ant-menu-submenu-title {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.ant-menu-submenu-title {
+  transform: translateX(-20px);
+  opacity: 0;
+}
+
+
