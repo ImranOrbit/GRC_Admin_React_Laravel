@@ -1,6 +1,5 @@
 
 
-
 import React, { useEffect, useState } from "react";
 import BASE_URL from "../../ApiBaseUrl/BaseUrl";
 import ImageBaseurl from "../../ApiBaseUrl/ImageBaseurl";
@@ -20,6 +19,7 @@ const ManageCollaborations = () => {
     try {
       const res = await fetch(`${BASE_URL}collaborations`);
       const data = await res.json();
+      console.log("Raw data from API:", data);
       setItems(data);
     } catch (err) {
       Swal.fire("Error", "Failed to fetch data", "error");
@@ -78,7 +78,7 @@ const ManageCollaborations = () => {
 
     try {
       const res = await fetch(`${BASE_URL}collaborations/${editItem.id}`, {
-        method: "POST", // Changed from PUT to POST
+        method: "POST",
         body: formDataObj,
       });
 
@@ -99,6 +99,39 @@ const ManageCollaborations = () => {
   useEffect(() => {
     fetchCollaborations();
   }, []);
+
+  // 🔴 FIXED: Better image URL constructor
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    
+    console.log("ImageBaseurl:", ImageBaseurl);
+    console.log("Original image path:", imagePath);
+    
+    // Remove any leading slash from imagePath
+    const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+    
+    // Ensure base URL doesn't have trailing slash
+    const baseUrl = ImageBaseurl.endsWith('/') ? ImageBaseurl.slice(0, -1) : ImageBaseurl;
+    
+    // Construct full URL
+    const fullUrl = `${baseUrl}/${cleanPath}`;
+    console.log("Constructed image URL:", fullUrl);
+    
+    return fullUrl;
+  };
+
+  // 🔴 FIXED: Local fallback for broken images
+  const handleImageError = (e) => {
+    console.log("Image failed to load:", e.target.src);
+    e.target.onerror = null;
+    // Create a simple colored div as fallback
+    const parent = e.target.parentElement;
+    const fallbackDiv = document.createElement('div');
+    fallbackDiv.className = 'w-16 h-16 bg-gray-200 flex items-center justify-center text-gray-500 text-xs rounded-md';
+    fallbackDiv.innerText = 'No Image';
+    parent.innerHTML = '';
+    parent.appendChild(fallbackDiv);
+  };
 
   return (
     <div className="max-w-6xl mx-auto my-12 p-6 bg-white rounded-xl shadow-lg">
@@ -129,15 +162,21 @@ const ManageCollaborations = () => {
                 className="w-full p-2 border border-gray-300 rounded-md"
               />
               {editItem.image && (
-                <img
-                  src={`${ImageBaseurl}${editItem.image.startsWith("/") ? editItem.image.substring(1) : editItem.image}`}
-                  alt="Current"
-                  className="w-24 h-24 rounded mt-2 object-cover"
-                />
+                <div className="mt-2">
+                  <p className="text-sm text-gray-500 mb-1">Current Image:</p>
+                  {/* 🔴 FIXED: Image with better error handling */}
+                  <div className="relative">
+                    <img
+                      src={getImageUrl(editItem.image)}
+                      alt="Current"
+                      className="w-24 h-24 rounded object-cover border"
+                      onError={handleImageError}
+                    />
+                  </div>
+                </div>
               )}
             </div>
 
-            {/* Meta Title */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Meta Title
@@ -152,7 +191,6 @@ const ManageCollaborations = () => {
               />
             </div>
 
-            {/* Meta Description */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Meta Description
@@ -193,16 +231,25 @@ const ManageCollaborations = () => {
                 <td className="px-4 py-2 border">{item.id}</td>
                 <td className="px-4 py-2 border">{item.text}</td>
                 <td className="px-4 py-2 border">
-                  {item.image && (
-                    <img
-                      src={`${ImageBaseurl}${item.image.startsWith("/") ? item.image.substring(1) : item.image}`}
-                      alt="Collaboration"
-                      className="w-16 h-16 object-cover rounded-md"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "https://via.placeholder.com/64?text=No+Image";
-                      }}
-                    />
+                  {item.image ? (
+                    <div>
+                      {/* 🔴 FIXED: Table image with better error handling */}
+                      <div className="relative">
+                        <img
+                          src={getImageUrl(item.image)}
+                          alt="Collaboration"
+                          className="w-16 h-16 object-cover rounded-md border"
+                          onError={handleImageError}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Path: {item.image}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 bg-gray-200 flex items-center justify-center text-gray-500 text-xs rounded-md">
+                      No image
+                    </div>
                   )}
                 </td>
                 <td className="px-4 py-2 border space-x-2">
