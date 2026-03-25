@@ -242,9 +242,9 @@ const ManageCollaborations = () => {
                           onError={handleImageError}
                         />
                       </div>
-                      <p className="text-xs text-gray-400 mt-1">
+                      {/* <p className="text-xs text-gray-400 mt-1">
                         Path: {item.image}
-                      </p>
+                      </p> */}
                     </div>
                   ) : (
                     <div className="w-16 h-16 bg-gray-200 flex items-center justify-center text-gray-500 text-xs rounded-md">
@@ -252,7 +252,7 @@ const ManageCollaborations = () => {
                     </div>
                   )}
                 </td>
-                <td className="px-4 py-2 border space-x-2">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                   <button
                     onClick={() => handleEdit(item)}
                     className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
